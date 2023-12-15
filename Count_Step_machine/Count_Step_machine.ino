@@ -28,10 +28,10 @@ int sensorValue = 0;   //定義 Arduino 讀到的聲音感測器感測值為 sen
 
 int LEDPIN = 16; //LED output
 
-int redPin = 0;    //紅外線感測器 OUT pin 
+int redPin = 18;    //紅外線感測器 OUT pin 
 int redValue = 0;   //定義 Arduino 讀到的紅外線感測器感測值為 redValue
 
-int beePin = 4;    //蜂鳴器 OUT pin 
+int beePin = 19;    //蜂鳴器 OUT pin 
 
 ////WIFI///////////////////////////////////////////////////////////
 void printWiFiData(){
@@ -80,13 +80,6 @@ void reconnect(){
 // ADXL345 sensortest
 /* Assign a unique ID to this sensor at the same time */
 Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified(12345);
-
-
-
-
-
-
-
 
 void displaySensorDetails(void)
 {
@@ -197,6 +190,7 @@ void setup(void)
 //   while (!Serial); // for Leonardo/Micro/Zero
 // #endif
   Serial.begin(115200);
+  Serial.print("Y: "); 
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, pwd);
   while(WiFi.status() != WL_CONNECTED){
@@ -363,7 +357,7 @@ void loop(void)
     Serial.println(avg_y);
 
     // decide the number of steps
-    if((max_x - min_x > 1) && (max_y - min_y > 1) && (max_x > avg_x) && (max_y > avg_y))
+    if((max_x - min_x > 1.5) && (max_y - min_y > 1) && (max_x > avg_x) && (max_y > avg_y))
     {
       steps++;
     }
@@ -390,7 +384,7 @@ void loop(void)
       Serial.println("Turn off LED.");
       digitalWrite(LEDPIN, LOW);
     }
-    // avoid obstacle + louder(蜂鳴器)
+  //   // avoid obstacle + louder(蜂鳴器)
     redValue = digitalRead(redPin);
     Serial.print("Obstacle detector: ");
     Serial.println(redValue);            //印出感測值於序列螢幕
@@ -406,7 +400,7 @@ void loop(void)
     {
       digitalWrite(beePin, LOW);
     }
-  // upload data to IDEAS CHAIN
+  // // upload data to IDEAS CHAIN
     
   //   char* keyName4 = "Infrared";
   //   char* keyName5 = "Sound sensor";
@@ -419,6 +413,8 @@ void loop(void)
 
 
  
+  digitalWrite(beePin, LOW);
+  digitalWrite(LEDPIN, LOW);
 
  
 
@@ -440,16 +436,16 @@ void loop(void)
   {
     sprintf(upload_Mes, "{\"%s \":\"%f \"}", keyName1, record_x[C] * 100);
     client.publish(publish_topic, upload_Mes);
-    delay(1000);
+    delay(500);
     sprintf(upload_Mes, "{\"%s \":\"%f \"}", keyName2, record_y[C] * 100);
     client.publish(publish_topic, upload_Mes);
-    delay(1000);
+    delay(500);
     // sprintf(upload_Mes, "{\"%s \":\"%f \"}", keyName3, event.acceleration.z);
     // client.publish(publish_topic, upload_Mes);
     // delay(10);
     sprintf(upload_Mes, "{\"%s \":\"%d \"}", Steps_keyName3, arr_Steps[C]);
     client.publish(publish_topic, upload_Mes);
-    delay(1000);
+    delay(500);
     client.loop();
     delay(500);
     C++;
